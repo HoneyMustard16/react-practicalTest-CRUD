@@ -1,23 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import Form from "./Components/Form";
+import ItemList from "./Components/ItemList";
+import { db } from "./Databases/firebase";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
+  const [items, setItems] = useState([]);
+
+  // use effect for mapping posts
+  useEffect(() => {
+    db.collection("items")
+      // .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setItems(
+          snapshot.docs.map((doc) => ({ id: doc.id, item: doc.data() }))
+        );
+      });
+  }, []);
+
+  console.log(items);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="container">
+      <h1>CRUD</h1>
+      <div className="row">
+        <div
+          className="col-md-6"
+          style={{ border: "1px solid", paddingBottom: "10px" }}
         >
-          Learn React
-        </a>
-      </header>
+          <h2>Item List</h2>
+          <div className="row">
+            {items.map(({ id, item }) => (
+              <ItemList key={id} itemId={id} item={item} />
+            ))}
+          </div>
+        </div>
+        <div
+          className="col-md-6"
+          style={{ border: "1px solid", paddingBottom: "10px" }}
+        >
+          <h2>Item</h2>
+          <div className="row">
+            <Form />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
